@@ -1,4 +1,4 @@
-题目: 电商用户行为数据分析
+题目: 在线零售用户行为数据分析
 
 数据来源: https://archive.ics.uci.edu/ml/datasets/online+retail#
 
