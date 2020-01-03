@@ -1,0 +1,131 @@
+{% extends 'myadmin/base.html' %}
+{% block content%}
+    <div class="widget am-cf">
+        <div class="widget-head am-cf">
+            <div class="widget-title am-fl"><font style="vertical-align: inherit;"><font
+                    style="vertical-align: inherit;">更改信息</font></font></div>
+            <div class="widget-function am-fr">
+                <a href="javascript:;" class="am-icon-cog"></a>
+            </div>
+        </div>
+        <div class="widget-body am-fr">
+
+            <form class="am-form tpl-form-line-form" action="{% url 'myadmin_useredituser'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <input type="hidden" name="id" value="{{ data.id }}">
+
+                <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">手机号</font></font></label>
+                    <div class="am-u-sm-9">
+                        <input type="text" class="tpl-form-input" name="phone" value="{{ data.phone }}">
+
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">密码</font></font></label>
+                    <div class="am-u-sm-9">
+                        <input type="text" class="tpl-form-input" name="password" value="{{ data.password }}">
+                        <input type="hidden" class="tpl-form-input" name="old_password" value="{{ data.password }}">
+
+                    </div>
+                </div>
+
+                 <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">头像</font></font></label>
+                    <div class="am-u-sm-9">
+                        <div class="am-form-group am-form-file">
+                            <div class="tpl-form-file-img">
+                                <img class="readimg" style="max-width:200px;" src="{{ data.face }}" alt="">
+                            </div>
+
+                            <button type="button" class="am-btn am-btn-danger am-btn-sm">
+                                <i class="am-icon-cloud-upload"></i><font style="vertical-align: inherit;"><font
+                                    style="vertical-align: inherit;"> 更改头像</font></font>
+                            </button>
+                            <input id="doc-form-file" type="file" multiple="" name="face">
+                            <input  type="hidden" multiple="" name="old_face" value="{{ data.face }}">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">用户名</font></font></label>
+                    <div class="am-u-sm-9">
+                        <input type="text" class="tpl-form-input" name="nikename" value="{{ data.nikename }}">
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">地址</font></font></label>
+                    <div class="am-u-sm-9">
+                        <input type="text" class="tpl-form-input" name="homeaddress" value="{{ data.homeaddress }}">
+
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">性别</font></font></label>
+                    <div class="am-u-sm-9">
+                        <input type="text" class="tpl-form-input" name="sex" value="{{ data.sex }}">
+                    </div>
+                </div>
+
+                    <div class="am-form-group">
+                    <label  class="am-u-sm-3 am-form-label"><font style="vertical-align: inherit;"><font
+                            style="vertical-align: inherit;">会员类型</font></font></label>
+                    <div class="am-u-sm-9">
+
+                        <select data-am-selected="{searchBox: 1}"  name="usertype" >
+                            {% if data.usertype == '普通会员' %}
+                            <option value="普通会员" selected>普通会员</option>
+                            <option value="VIP">VIP</option>
+                            <option value="SVIP">SVIP</option>
+
+                            {% elif data.usertype == 'VIP' %}
+                             <option value="普通会员">普通会员</option>
+                            <option value="VIP" selected>VIP</option>
+                            <option value="SVIP">SVIP</option>
+
+                            {% elif data.usertype == 'SVIP' %}
+                            <option value="普通会员">普通会员</option>
+                            <option value="VIP">VIP</option>
+                            <option value="SVIP" selected>SVIP</option>
+                            {% endif %}
+
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <div class="am-u-sm-9 am-u-sm-push-3">
+                        <button  class="am-btn am-btn-primary tpl-btn-bg-color-success "><font
+                                style="vertical-align: inherit;"><font style="vertical-align: inherit;">提交</font></font>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<script>
+$('input[name=face]').change(function(){
+        var file = this.files[0]
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload=function(e){
+            $('.readimg').attr('src',this.result)
+        }
+    })
+
+</script>
+
+{% endblock %}

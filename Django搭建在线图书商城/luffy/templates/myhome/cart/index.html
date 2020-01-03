@@ -1,0 +1,222 @@
+{% extends 'myhome/base.html' %}
+
+{% block con %}
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li><a href="#" class="active">购物车</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="entry-header-area">
+	<div class="container">
+	    <div class="row">
+	        <div class="col-lg-12">
+	            <div class="entry-header-title">
+	                <h2>购物车</h2>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+</div>
+<div class="cart-main-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="#">
+                    <div class="table-content table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="product-thumbnail" >
+                                        <input type="checkbox" class="all" >
+                                    </th>
+                                    <th class="product-thumbnail">图片</th>
+                                    <th class="product-name">书名</th>
+                                    <th class="product-price">单价</th>
+                                    <th class="product-quantity">数量</th>
+                                    <th class="product-subtotal">小计</th>
+                                    <th class="product-remove">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in user.cart_set.all %}
+                                <tr>
+                                    <td class="product-thumbnail">
+                                        <input type="checkbox" style="width:15px;" cartid="{{ i.id }}">
+                                    </td>
+                                    <td class="product-thumbnail">
+                                        <a href="#"><img src="{{ i.bid.bookimgs_set.first.img_url }}"  alt="man"></a>
+                                    </td>
+                                    <td class="product-name"><a href="#">{{ i.bid.title }}</a></td>
+                                    <td class="product-price">¥<span class="amount">{{ i.bid.price }}</span></td>
+                                    <td class="product-quantity">
+                                        <input type="number" name="num" min="1" value="{{ i.num }}">
+                                        <input type="hidden" name="cartid" value="{{ i.id }}">
+                                    </td>
+                                    {% load pagetag %}
+                                    <td class="product-subtotal">¥<span>{% cheng i.bid.price  i.num %}</span></td>
+                                    <td class="product-remove">
+                                        <a href="javascript:void(0)"><i class="fa fa-times"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+                <div class="buttons-cart mb-30">
+                    <ul>
+                        <li><a href="/">继续购物</a></li>
+                    </ul>
+                </div>
+               
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                <div class="cart_totals">
+                    <h2>购物车总计</h2>
+                    <br>
+                    <table>
+                        <tbody>
+                            <tr class="cart-subtotal">
+                                <th>小计</th>
+                                <td>¥<span class="amount">0.00</span></td>
+                            </tr>
+                           
+                            <tr class="order-total">
+                                <th>总计</th>
+                                <td><strong>¥<span class="amount">0.00</span></strong></td>
+                            </tr>
+                            <tr>
+                                <th>&nbsp;</th>
+                                <td>
+                                    <div class="wc-proceed-to-checkout">
+                                        <a id="addorder" href="javascript:void(0)">去结算</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('#addorder').click(function(){
+        // 获取当前已经选中的购物车商品的id
+        var res = TotalPrice()
+        if (res.length) {
+            // 已经选择了要购买的产品
+            location.href="{% url 'myhome_order_confirm' %}?ids="+res
+        } else {
+            alert('请先选择需要购买的产品')
+        }
+    })
+    // 全选
+    $('input[type=checkbox]').click(function(){
+        if ($(this).attr('class') == 'all') {
+            // 给所有的选框设置状态
+            $('input[type=checkbox]').prop('checked',this.checked)
+        }
+        TotalPrice()
+    })
+
+
+    // 计算总价
+    function TotalPrice(){
+        var total = 0
+        var cartids = []
+        // 获取当前所有选中的元素的 小计价格
+        $('input[type=checkbox]').each(function(){
+            if ($(this).prop('checked')) {
+                var xj = Number($(this).parents('tr').find('.product-subtotal span').text())
+                total += xj
+                // 获取当前选中的元素的 id
+                cartid = $(this).attr('cartid')
+                if (cartid) {
+                    cartids.push(cartid)
+                }
+            }
+        })
+        total = returnFloat(total)
+        // 设置总价
+        $('.cart_totals .amount').text(total)
+        // console.log(total)
+        // console.log(cartids)
+        // 返回当前已经选中的id
+        return cartids
+    }
+
+    // 购物车数量编辑
+    $('input[name=num]').blur(function(){
+        // 获取当前元素的值
+        var data = {}
+        data['n'] = Number($(this).val())
+        data['cartid'] = $(this).next().val()
+        var price = Number($(this).parents('tr').find('.amount').text())
+        var $this = $(this)
+        // 发送ajax数据,到后台更新购物车商品数量
+        $.get('{% url 'myhome_cart_edit' %}',data,function(sdata){
+            if (sdata['code']) {
+                // 更新失败
+                alert(sdata['msg'])
+            }else{
+                // 修改当前的小计价格
+                var x = returnFloat(data['n']*price)
+                $this.parents('tr').find('.product-subtotal span').text(x)
+            }
+        },'json')
+    })
+
+    // 购物车商品删除
+    $('.product-remove a').click(function(){
+        // 弹出一个确认框
+        var res = confirm('是否确认删除购物车商品?')
+        var $this = $(this)
+        if (res) {
+            // 获取当前购物车的id
+            var cartid = $(this).parents('tr').find('input[name=cartid]').val()
+            // 发送ajax请求 删除购物车商品
+            $.get('{% url 'myhome_cart_delete' %}',{'cartid':cartid},function(data){
+                // 判断当前是否删除成功
+                if (data['code']) {
+                    alert(data['msg'])
+                }else{
+                    // 删除成功,则删除这个tr
+                    $this.parents('tr').remove()
+                }
+            },'json')
+        }
+    })
+
+    function returnFloat(value){
+        var value=Math.round(parseFloat(value)*100)/100;
+        var xsd=value.toString().split(".");
+        if(xsd.length==1){
+            value=value.toString()+".00";
+            return value;
+        }
+        if(xsd.length>1){
+            if(xsd[1].length<2) { 
+                value=value.toString()+"0"; 
+            } 
+            return value; 
+        } 
+    }
+</script>
+
+{% endblock %}

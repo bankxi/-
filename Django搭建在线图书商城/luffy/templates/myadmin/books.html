@@ -1,0 +1,148 @@
+{% extends 'myadmin/base.html' %}
+{% block content%}
+
+<div class="container-fluid am-cf">
+        <div class="row">
+            <div class="am-u-sm-12 am-u-md-12 am-u-lg-9">
+                <div class="page-header-heading">
+                    <span class="am-icon-users page-header-heading-icon"></span>
+                     图书商品管理
+                 </div>
+            </div>
+        </div>
+
+    </div>
+
+        <div class="row  am-cf">
+            <div class="am-u-sm-12 am-u-md-12 am-u-lg-12">
+                <div class="widget am-cf">
+                    <div class="widget-head am-cf">
+                        <div class="widget-title  am-cf">图书商品列表</div>
+
+
+                    </div>
+                    <div class="widget-body  am-fr">
+
+                        <div class="am-u-sm-12 am-u-md-6 am-u-lg-6">
+                            <div class="am-form-group">
+                                <div class="am-btn-toolbar">
+                                    <div class="am-btn-group am-btn-group-xs">
+                                        <a href="{% url 'myadmin_booksadd' %}" class="am-btn am-btn-default am-btn-success"><span class="am-icon-plus"></span> 新增</a>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <form action="">
+                        <div class="am-u-sm-12 am-u-md-6 am-u-lg-3">
+                            <div class="am-form-group tpl-table-list-select">
+                                <select name="selecttype" data-am-selected="{btnSize: 'sm'}" style="display: none;">
+                                  <option value="all" {% if request.GET.selecttype == 'all' %} selected {% endif %}>所有字段</option>
+                                  <option value="title" {% if request.GET.selecttype == 'titile' %} selected {% endif %}>书名</option>
+                                  <option value="author" {% if request.GET.selecttype == 'author' %} selected {% endif %}>作者</option>
+                                  <option value="publisher" {% if request.GET.selecttype == 'publisher' %} selected {% endif %}>出版社</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="am-u-sm-12 am-u-md-12 am-u-lg-3">
+                            <div class="am-input-group am-input-group-sm tpl-form-border-form cl-p">
+                                <input type="text" value="{{ request.GET.keywords }}" name="keywords" class="am-form-field ">
+                                <span class="am-input-group-btn">
+                                    <button class="am-btn  am-btn-default am-btn-success tpl-table-list-field am-icon-search" ></button>
+                                  </span>
+                            </div>
+                        </div>
+                    </form>
+
+                        <div class="am-u-sm-12">
+                            <table width="100%" class="am-table am-table-compact am-table-striped tpl-table-black ">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>封面图</th>
+                                        <th>图书名</th>
+                                        <th>作者</th>
+                                        <th>出版社</th>
+                                        <th>出版时间</th>
+                                        <th>单价</th>
+                                        <th>库存</th>
+                                        <th>推荐语</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in data %}
+                                    <tr >
+                                        <td class="am-text-middle">{{ i.id }}</td>
+                                        <td>
+                                            <img src="{{ i.bookimgs_set.first.img_url }}" class="tpl-table-line-img" alt="">
+                                        </td>
+                                        <td class="am-text-middle">{{ i.title }}</td>
+                                        <td class="am-text-middle">{{ i.author }}</td>
+                                        <td class="am-text-middle">{{ i.publisher }}</td>
+                                        <td class="am-text-middle">{{ i.pub_date|date:'Y-m-d' }}</td>
+                                        <td class="am-text-middle">{{ i.price }}</td>
+                                        <td class="am-text-middle">{{ i.num }}</td>
+                                        <!--控制长段落显示的字符数 ，其余的隐藏-->
+                                        <td class="am-text-middle">{{ i.tuijian|truncatechars:15 }}</td>
+
+                                        <td class="am-text-middle">
+                                            <div class="tpl-table-black-operation">
+                                                <a href="{% url 'myadmin_bookedit' i.id%}">
+                                                    <i class="am-icon-pencil"></i> 编辑
+                                                </a>
+                                                <a href="javascript:;" class="tpl-table-black-operation-del">
+                                                    <i class="am-icon-trash"></i> 删除
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="am-u-lg-12 am-cf">
+
+                            <div class="am-fr">
+                                <ul class="am-pagination tpl-pagination">
+                                    <li>总页数:{{ data.paginator.num_pages }}</li>
+                                    <li>总条数:{{ data.paginator.count }}</li>
+
+                                    {% load pagetag %}
+                                    <!-- 使用自定义分页优化标签 -->
+
+                                    {% showpage data.paginator.num_pages request %}
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<script>
+// 给删除按钮绑定一个单击事件
+$('.tpl-table-black-operation-del').click(function(){
+    var pd=confirm('是否删除该商品')
+    // 获取当前的 数据 id
+    id = $(this).parents('tr').find('td:first').text()
+    a = $(this)
+    // 发送ajax请求到后台 进行数据的删除
+    if (pd){
+    $.get('{% url 'myadmin_bookdele' %}',{'id':id},function(data){
+        // 判断是否成功
+        if(data['code'] == 0){
+            // 删除当前的这一行数据
+            // $(this).parents('tr').remove()// X
+            // 当前的$(this) 是  XMLHttpRequest ajax对象
+            // console.log($(this))
+            a.parents('tr').remove()
+        }
+
+        alert(data['msg'])
+    },'json')}
+})
+</script>
+
+{% endblock %}

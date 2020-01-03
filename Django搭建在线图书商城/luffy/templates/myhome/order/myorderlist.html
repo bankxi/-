@@ -1,0 +1,109 @@
+{% extends 'myhome/base.html' %}
+
+{% block con %}
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li><a href="#" class="active">个人订单中心</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="entry-header-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="entry-header-title">
+                    <h2>我的订单</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="cart-main-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="#">
+                    <div class="table-content table-responsive">
+                    {% for i in user.order_set.all %}
+                        <table>
+                            <thead>
+                                <tr style="background: #ccc;">
+                                    <th  style="text-align:left;" class="product-thumbnail" rowspan="4">
+                                        订单时间: {{ i.ordertime}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                        订单号: {{ i.id }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                        收货人: {{ i.name }}
+
+
+
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>
+                                        订单状态:
+                                        {% if i.status == 0 %}
+                                            <span style="color:red;">未支付&nbsp;&nbsp;&nbsp;<a href="{% url 'myhome_order_pay' i.id %}">点击支付</a>&nbsp;&nbsp;&nbsp;<a href="{% url 'myhome_order_dele' i.id %}">取消订单</a></span>
+                                        {% elif i.status == 1 %}
+                                            <span style="color:green;">已支付</span>
+                                        {% elif i.status == 2 %}
+                                            <span>待收货</span>
+                                        {% endif %}
+
+
+                                    </th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for ii in i.orderdetail_set.all %}
+                                <tr>
+
+                                    <td class="product-thumbnail">
+                                        <a href="#">
+                                            <img style="width: 100px;" src="{{ ii.bid.bookimgs_set.first.img_url }}"  alt="man">
+                                        </a>
+                                        <<{{ ii.bid.title }}>><br>
+                                        编辑推荐:{{ ii.bid.tuijian }}
+
+                                    </td>
+
+                                    <td class="product-price">¥<span class="amount">{{ ii.price }}</span></td>
+                                    <td class="product-quantity">
+                                        <span>X{{ ii.num }}</span>
+                                    </td>
+                                    {% load pagetag %}
+                                    <td class="product-subtotal">¥<span>{% cheng ii.bid.price  ii.num %}</span></td>
+
+
+                                </tr>
+                            {% endfor %}
+                                <tr >
+                                    <th rowspan="4"></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th class="product-thumbnail" style="background:#ccc;">
+                                        订单总价: {{ i.totalprice }}
+                                    </th>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends 'myhome/base.html' %}
+
+{% block con %}
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li><a href="#" class="active">订单结算页</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="checkout-area mb-70">
+    <div class="container">
+        <div class="row">
+            <form action="{% url 'myhome_order_create' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="ids" value="{{ request.GET.ids }}">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="checkbox-form">
+                        <h3>
+                            <font style="vertical-align: inherit;">
+                                <font style="vertical-align: inherit;">收货信息</font>
+                            </font>
+                        </h3>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 ">
+                                <div class="checkout-form-list">
+                                    <label>
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">收货人</font></font>
+                                        <span class="required">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">*</font></font>
+                                        </span>
+                                    </label>
+                                    <input type="text" name="name" required minlength="2" placeholder=""></div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div class="checkout-form-list">
+                                    <label>
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">电话</font></font>
+                                        <span class="required">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">*</font></font>
+                                        </span>
+                                    </label>
+                                    <input type="number" name="phone" required minlength="11" maxlength="11" placeholder=""></div>
+                            </div>
+                         
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="checkout-form-list">
+                                    <label>
+                                        <font style="vertical-align: inherit;">
+                                            <font style="vertical-align: inherit;">地址</font></font>
+                                        <span class="required">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">*</font></font>
+                                        </span>
+                                    </label>
+                                    <input type="text" name="address" required></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="your-order">
+                        <h3>
+                            <font style="vertical-align: inherit;">
+                                <font style="vertical-align: inherit;">所购产品</font></font>
+                        </h3>
+                        <div class="your-order-table table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="product-name">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">产品</font></font>
+                                        </th>
+                                        <th class="product-total">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">小计</font></font>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for i in carts %}
+                                    <tr class="cart_item">
+                                        <td class="product-name">
+                                            <img src="{{i.bid.bookimgs_set.first.img_url}}" width="50">
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">{{ i.bid.title }}</font>
+                                            </font>
+                                            <strong class="product-quantity">
+                                                <font style="vertical-align: inherit;">
+                                                    <font style="vertical-align: inherit;">×{{ i.num }}</font>
+                                                </font>
+                                            </strong>
+                                        </td>
+                                        <td class="product-total">
+                                            <span class="amount">
+                                                <font style="vertical-align: inherit;">
+                                                    {% load pagetag %}
+                                                    <font style="vertical-align: inherit;" >¥<span class="xj">{% cheng i.num i.bid.price %}</span></font>
+                                                </font>
+                                                    
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    
+                                    <tr class="order-total">
+                                        <th>
+                                            <font style="vertical-align: inherit;">
+                                                <font style="vertical-align: inherit;">合计订单</font></font>
+                                        </th>
+                                        <td>
+                                            <strong>
+                                                <span class="amount">
+                                                    <font style="vertical-align: inherit;">
+                                                        <font style="vertical-align: inherit;">¥ <span class="total"></span></font>
+                                                    </font>
+                                                </span>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="payment-method">
+                           
+                            <div class="order-button-payment">
+                                <font style="vertical-align: inherit;">
+                                    <font style="vertical-align: inherit;">
+                                        <input type="submit" value="下订单"></font>
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    var xj = 0
+    $('.xj').each(function(){
+       xj +=  Number($(this).text())
+    })
+    $('.total').text(returnFloat(xj))
+
+    function returnFloat(value){
+        var value=Math.round(parseFloat(value)*100)/100;
+        var xsd=value.toString().split(".");
+        if(xsd.length==1){
+            value=value.toString()+".00";
+            return value;
+        }
+        if(xsd.length>1){
+            if(xsd[1].length<2) { 
+                value=value.toString()+"0"; 
+            } 
+            return value; 
+        } 
+    }
+</script>
+
+
+{% endblock %}

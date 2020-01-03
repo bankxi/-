@@ -1,0 +1,200 @@
+{% extends 'myadmin/base.html' %}
+{% block content%}
+<!-- 内容区域 -->
+<style>
+    #a2 {
+        color:black;
+    }
+</style>
+ <div class="container-fluid am-cf">
+        <div class="row">
+            <div class="am-u-sm-12 am-u-md-12 am-u-lg-9">
+                <div class="page-header-heading">
+                    <span class="am-icon-users page-header-heading-icon"></span>
+                     分类管理
+                 </div>
+
+                <div id="alert" class="am-alert am-alert-success" data-am-alert style="white-space: nowrap; position: absolute;top:-50px;left: 250px;display: none;">
+                  <button type="button" class="am-close">&times;</button>
+                  <p></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+<div class="row">
+    <div class="am-u-sm-12 am-u-md-12 am-u-lg-12">
+        <div class="widget am-cf">
+            <div class="widget-head am-cf">
+                <div class="widget-title  am-cf">图书分类列表</div>
+            </div>
+            <div class="widget-body  am-fr">
+
+                <div class="am-u-sm-12 am-u-md-6 am-u-lg-6">
+                    <div class="am-form-group">
+                        <div class="am-btn-toolbar">
+                            <div class="am-btn-group am-btn-group-xs">
+                                <a href="{% url 'myadmin_typeadd'%}" class="am-btn am-btn-default am-btn-success"><span
+                                        class="am-icon-plus"></span> 新增
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+<form action="{% url 'myadmin_sotype' %}" method="post">
+    {% csrf_token %}
+<div class="am-u-sm-12 am-u-md-12 am-u-lg-6">
+    <div class="am-input-group am-input-group-sm tpl-form-border-form cl-p">
+
+        <input type="text" class="shuru am-form-field " name="search" placeholder="搜索图书类别" >
+        <span class="am-input-group-btn">
+            <button class="am-btn  am-btn-default am-btn-success tpl-table-list-field am-icon-search">搜索</button>
+        </span>
+
+    </div>
+</div>
+ </form>
+    <div class="am-u-sm-12">
+        <table width="100%" class="am-table am-table-compact am-table-striped tpl-table-black ">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>类别</th>
+                <th>父级类别</th>
+                <th>路径</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in data %}
+            <tr class="even gradeC">
+                <td>{{ i.id }}</td>
+                <td>{{ i.cat }}<span class="tname" isclick="0">{{i.name}}</span></td>
+                <td>{{ i.pname }}</td>
+                <td>{{ i.path }}</td>
+                <td>
+                    <div class="tpl-table-black-operation">
+
+                        <a href="javascript:;" class="tpl-table-black-operation-del">
+                            <i class="am-icon-trash"></i> 删除
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+
+
+                    <!-- more data -->
+            </tbody>
+                </table>
+    </div>
+            <div class="am-u-lg-12 am-cf">
+
+                <div class="am-fr">
+                    <ul class="am-pagination tpl-pagination">
+                        <li>总页数:{{ data.paginator.num_pages }}</li>
+                        <li>总条数:{{ data.paginator.count }}</li>
+                        <li class="am-disabled"><a href="#">«</a></li>
+                        {% load pagetag %}
+
+                        {% showpage data.paginator.num_pages request %}
+
+                        <li><a href="#">»</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+
+    // 给删除按钮绑定一个单击事件
+    $('.tpl-table-black-operation-del').click(function(){
+        var pd=confirm('是否删除该分类')
+        // 获取当前的 数据 id
+        id = $(this).parents('tr').find('td:first').text()
+        a = $(this)
+        // 发送ajax请求到后台 进行数据的删除
+        if (pd){
+        $.get('{% url 'myadmin_typedele' %}',{'id':id},function(data){
+            // 判断是否成功
+            if(data['code'] == 0){
+                // 删除当前的这一行数据
+                // $(this).parents('tr').remove()// X
+                // 当前的$(this) 是  XMLHttpRequest ajax对象
+                // console.log($(this))
+                a.parents('tr').remove()
+            }
+
+            alert(data['msg'])
+        },'json')}
+    })
+
+     $('.save').click(function(){
+        alert("已保存")
+    })
+
+//修改
+// 封装编辑函数
+function typenameedit($this){
+$this.attr('isclick','1')
+
+
+// 先获取name
+tname = $this.text()
+
+// 创建一个input
+inp = $('<input type="text" value="'+tname+'" style="color:black;">')
+// 把input加入到span中
+$this.html(inp)
+inp.select()
+
+// 给input绑定丧失焦点事件,获取新的类名
+inp.blur(function(){
+newname = $(this).val()
+// 判断当前newname是否更新了
+if(newname == tname){
+// 不需要后台数据更新
+$this.text(tname)
+}else{
+// 发送ajax请求后后台修改数据
+id = $this.parents('tr').find('td:first').text()
+
+$.get('{% url 'myadmin_typeedit' %}',{'id':id,'name':newname},function(data){
+if (data['code'] == 0) {
+// 成功
+$this.text(newname)
+alert(data['msg'])
+}else{
+$this.text(tname)
+alert(data['msg'])
+}
+},'json')
+
+}
+
+$this.attr('isclick','0')
+
+
+})
+}
+
+// 绑定双击事件
+$('.tname').dblclick(function(){
+is =  $(this).attr('isclick')
+if(is == '0'){
+typenameedit($(this))
+}
+
+})
+
+
+</script>
+
+{% endblock %}

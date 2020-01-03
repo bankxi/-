@@ -1,0 +1,138 @@
+{% extends 'myadmin/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/myadmin/others/ImgUpRead.css">
+
+
+    <div class="row">
+        <div class="am-u-sm-12 am-u-md-12 am-u-lg-12">
+            <div class="widget am-cf">
+                <div class="widget-head am-cf">
+                    <div class="widget-title am-fl">图书商品添加表单</div>
+                    <div class="widget-function am-fr">
+                        <a href="javascript:;" class="am-icon-cog"></a>
+                    </div>
+                </div>
+                <div class="widget-body am-fr">
+                    <form class="am-form tpl-form-line-form" action="{% url 'myadmin_booksinsert' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *所属分类(多选)
+                            </label>
+                            <div class="am-u-sm-9">
+                                <select name="typeid" multiple="multiple" data-am-selected="{searchBox: 0}">
+                                {% for i in types %}
+                                    <option value="{{ i.id }}" {% if i.pid == 0 %} disabled {% endif %}>{{i.cat}}{{ i.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *书名
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="text" name="title" required  class="tpl-form-input" >
+                            </div>
+                        </div>
+
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *作者
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="text" name="author" required   class="tpl-form-input" >
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *出版社
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="text" name="publisher" required   class="tpl-form-input">
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *出版时间
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="date" name="pub_date" required    class="tpl-form-input" >
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *ISBN书号
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="number" name="ISBN" required  minlength="13" maxlength="13" class="tpl-form-input">
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *单价
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="text" name="price" required  class="tpl-form-input" >
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *库存数量
+                            </label>
+                            <div class="am-u-sm-9">
+                                <input type="number" name="num" required  class="tpl-form-input">
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *推荐语
+                            </label>
+                            <div class="am-u-sm-9">
+                                <textarea name="tuijian" required cols="30" rows="3" ></textarea>
+                            </div>
+                        </div>
+                        <div class="am-form-group">
+                            <label  class="am-u-sm-3 am-form-label">
+                                *图书详情介绍
+                            </label>
+                            <div class="am-u-sm-9">
+                               <textarea name="context" id="" cols="30" rows="10">
+
+                               </textarea>
+                            </div>
+                        </div>
+
+
+
+                        <div id="img-box" style="width:805px;">
+
+                        </div>
+
+
+
+
+                        <div class="am-form-group">
+                            <div class="am-u-sm-12 am-u-sm-push-5">
+                                <button  class="am-btn am-btn-primary tpl-btn-bg-color-success ">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="/static/myadmin/others/jquery.min.js"></script>
+<script src="/static/myadmin/assets/js/ImgUpRead.js"></script>
+<script>
+    obj = new imgUp({'box':'img-box','filenum':4,'filename':'pics'})
+    obj.createitem()
+</script>
+
+{% endblock %}
